@@ -1,0 +1,15 @@
+version: "3"
+services:
+  mongo: 
+    image: mongo:7.0.8
+    container_name: "mongo_db"
+    ports:
+      - 27017:27017
+   
+  # app:
+  #   image: backend_image
+  #   depends_on:
+  #     - mongo
+  #   ports:
+  #     - 8000:8000
+
