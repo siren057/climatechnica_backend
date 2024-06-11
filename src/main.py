@@ -1,27 +1,20 @@
 from fastapi import FastAPI, Body
 
 import motor.motor_asyncio
-
-
-
-# class User(BaseModel):
-#      id: int
-#      email: str
-#      profile: dict[str, str]
-#      city: str
+from bson import ObjectId
 
 
 class Profile:
-    def __init__(self, first_name, last_name, adress):
+    def __init__(self, first_name, last_name, address):
         self.first_name = first_name
         self.last_name = last_name
-        self.adress = adress
+        self.address = address
     
     def to_dict(self):
         return {
-            "email": self.first_name,
+            "first_name": self.first_name,
             "profile": self.last_name,
-            "city": self.adress 
+            "city": self.address 
         }
         
 
@@ -58,4 +51,15 @@ async def get_users():
 @app.post("/create_user", response_model=None )
 async def create_user(email: str = Body(...), profile: dict = Body(...), city: str = Body(...)):
     result = await collection.insert_one(User(email, profile, city).to_dict())
-    return {"id": str(result.inserted_id)}
+    user_id = str(result.inserted_id)
+    return {"id": user_id} | User(email, profile, city).to_dict() 
+
+@app.post("/update_user/{user_id}", response_model=None)
+async def update_user(user_id: str, email: str = Body(...), profile: dict = Body(...), city: str = Body(...)):
+    await collection.update_one({'_id': ObjectId(user_id)}, {'$set': User(email, profile, city).to_dict()})
+    return {"id": user_id} | User(email, profile, city).to_dict()
+
+@app.post("/delete_user/{user_id}", response_model=None)
+async def delete_user(user_id: str):
+    await collection.delete_one({'_id': ObjectId(user_id)})
+    return {"user with id - "+ str(user_id) + "has been deleted"} 
