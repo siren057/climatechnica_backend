@@ -6,10 +6,10 @@ services:
     ports:
       - 27017:27017
    
-  # app:
-  #   image: backend_image
-  #   depends_on:
-  #     - mongo
-  #   ports:
-  #     - 8000:8000
+  app:
+    image: backend_image
+    depends_on:
+      - mongo
+    ports:
+      - 8000:8000
 
