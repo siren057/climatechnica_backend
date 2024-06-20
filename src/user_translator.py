@@ -21,7 +21,7 @@ class ProfileMongoTranslator(Profile):
 
 class UserMongoTranslator(User):
     @staticmethod
-    def from_document(document: dict) -> object:
+    def from_document(document: dict) -> User:
         return User(
             id=str(ObjectId(document.get("_id"))),
             email=document.get('email'),
@@ -30,7 +30,7 @@ class UserMongoTranslator(User):
             city=document.get("city")
         )
 
-    def to_document(self) -> dict:
+    def to_document(self: User) -> dict:
         return {
             "id": self.id or None,
             "email": self.email or None,

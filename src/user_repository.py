@@ -2,9 +2,6 @@ import motor.motor_asyncio
 
 from bson import ObjectId
 
-from models import *
-import json
-
 client = motor.motor_asyncio.AsyncIOMotorClient("mongodb://localhost:27017")
 db = client["test_database"]
 collection = db["users"]
@@ -30,4 +27,5 @@ class UserRepository:
 
     @staticmethod
     async def delete(id: str):
-        return await collection.delete_one({"id": ObjectId(id)})
+        await collection.find_one_and_delete({"_id": ObjectId(id)})
+        return

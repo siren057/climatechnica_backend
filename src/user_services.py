@@ -23,24 +23,37 @@ class UserServices:
             ls.add(UserMongoTranslator.from_document(i))
         return ls
 
+    @staticmethod
+    def update_user_attributes(user: User, document: dict):
+        if 'name' in document:
+            user.name = document['name']
+        if 'email' in document:
+            user.email = document['email']
+        if 'password' in document:
+            user.password = document['password']
+        if 'age' in document:
+            user.age = document['age']
+
     async def create_user(self, document):
         user = UserMongoTranslator.from_document(document)
         user.password = self.hash_password(user.password)
         await UserRepository.create(UserMongoTranslator.to_document(user))
         return starlette.status.HTTP_201_CREATED
 
-
     async def update_user(self, id, document):
-        user = UserMongoTranslator.from_document(document)
-        if await UserRepository.find_one(id):
-            await UserRepository.update(id, UserMongoTranslator.to_document(user))
-            return starlette.status.HTTP_201_CREATED
-        else:
+        candidate = await UserRepository.find_one(id)
+        if not candidate:
             return starlette.status.HTTP_400_BAD_REQUEST
+        user_obj = UserMongoTranslator.from_document(candidate)
+        self.update_user_attributes(user_obj, document)
+
+        await UserRepository.update(id, UserMongoTranslator.to_document(user_obj))
+
+        return starlette.status.HTTP_201_CREATED
 
     async def delete_user(self, id):
-        if UserRepository.delete(id):
-            return starlette.status.HTTP_200_OK
-        else:
+        candidate = await UserRepository.find_one(id)
+        if not candidate:
             return starlette.status.HTTP_400_BAD_REQUEST
-
+        await UserRepository.delete(id)
+        return starlette.status.HTTP_200_OK
