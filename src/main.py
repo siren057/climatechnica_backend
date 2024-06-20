@@ -26,7 +26,7 @@ async def update(user_id: str, document_json: dict = Body()):
     return result
 
 
-@app.delete("/users/{user_id}", response_model=None)
+@app.delete("/users/{user_id}")
 async def delete_user(user_id: str):
     result = await user.delete_user(user_id)
     return result
