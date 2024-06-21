@@ -1,5 +1,4 @@
 from models import *
-from bson import ObjectId
 
 
 class ProfileMongoTranslator:
