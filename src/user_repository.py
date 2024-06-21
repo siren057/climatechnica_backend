@@ -1,5 +1,4 @@
 import motor.motor_asyncio
-from models import User, Profile
 from bson import ObjectId
 from user_translator import *
 

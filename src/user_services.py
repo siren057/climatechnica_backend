@@ -1,5 +1,4 @@
 import starlette.status
-
 from user_repository import UserRepository
 import bcrypt
 from user_translator import *
