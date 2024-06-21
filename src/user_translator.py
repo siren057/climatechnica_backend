@@ -2,16 +2,18 @@ from models import *
 from bson import ObjectId
 
 
-class ProfileMongoTranslator(Profile):
+class ProfileMongoTranslator:
+
+
     @staticmethod
-    def from_document(document: dict):
+    def from_document(document: dict) -> Profile:
         return Profile(
-            first_name=document["first_name"],
-            last_name=document["last_name"],
-            address=document["address"]
+            first_name=document.get("first_name"),
+            last_name=document.get("last_name"),
+            address=document.get("address")
         )
 
-    def to_document(self):
+    def to_document(self: Profile) -> dict:
         return {
             "first_name": self.first_name,
             "last_name": self.last_name,
@@ -19,11 +21,29 @@ class ProfileMongoTranslator(Profile):
         }
 
 
-class UserMongoTranslator(User):
+class UserWithIdMongoTranslator:
+    @staticmethod
+    def from_document(document: dict) -> UserWithID:
+        return UserWithID(
+            id=str(document.get("_id")),
+            email=document.get('email'),
+            password=document.get("password"),
+            profile=ProfileMongoTranslator.from_document(document.get("profile")),
+            city=document.get("city")
+        )
+
+    def to_document(self: UserWithID) -> dict:
+        return {
+            "id": self.id,
+            "email": self.email,
+            "password": self.password,
+            "profile": ProfileMongoTranslator.to_document(self.profile),
+            "city": self.city
+        }
+class UserMongoTranslator:
     @staticmethod
     def from_document(document: dict) -> User:
         return User(
-            id=str(ObjectId(document.get("_id"))),
             email=document.get('email'),
             password=document.get("password"),
             profile=ProfileMongoTranslator.from_document(document.get("profile")),
@@ -32,9 +52,8 @@ class UserMongoTranslator(User):
 
     def to_document(self: User) -> dict:
         return {
-            "id": self.id or None,
-            "email": self.email or None,
-            "password": self.password or None,
-            "profile": ProfileMongoTranslator.to_document(self.profile) or None,
-            "city": self.city or None
+            "email": self.email,
+            "password": self.password,
+            "profile": ProfileMongoTranslator.to_document(self.profile),
+            "city": self.city
         }

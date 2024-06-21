@@ -1,7 +1,6 @@
 from fastapi import FastAPI, Body
 from user_services import UserServices
-
-import json
+import uvicorn
 
 app = FastAPI()
 
@@ -11,22 +10,22 @@ def health_check():
     return {"ping": "pong"}
 
 @app.get("/users")
-async def get_all_users():
-    return await user.get_user()
+async def users():
+    return await user.get_users()
 
 @app.post("/users")
 async def create(document_json: dict = Body()):
-    result = await user.create_user(document_json)
-    return result
+    return await user.create_user(document_json)
 
 
-@app.put("/users/{user_id}")
+@app.patch("/users/{user_id}")
 async def update(user_id: str, document_json: dict = Body()):
-    result = await user.update_user(user_id, document_json)
-    return result
+    return await user.update_user(user_id, document_json)
 
 
 @app.delete("/users/{user_id}")
 async def delete_user(user_id: str):
-    result = await user.delete_user(user_id)
-    return result
+    return await user.delete_user(user_id)
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="localhost", port=8000)

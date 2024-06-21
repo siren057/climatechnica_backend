@@ -6,11 +6,14 @@ class Profile:
 
 
 class User:
-    def __init__(self, id,  email, password, profile, city):
-        self.id = id or None
+    def __init__(self, email, password, profile, city):
         self.email = email
         self.password = password
         self.profile = profile
         self.city = city
 
 
+class UserWithID(User):
+    def __init__(self, id, email, password, profile, city):
+        super().__init__(email, password, profile, city)
+        self.id = id
