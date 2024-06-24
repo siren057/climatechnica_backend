@@ -4,23 +4,9 @@ import bcrypt
 from user_translator import *
 
 
-class UserServices:
-    user_repository = UserRepository()
-
-    def profile_document_to_class(self, document: dict) -> Profile:
-        return Profile(
-            first_name=document.get("first_name"),
-            last_name=document.get("last_name"),
-            address=document.get("address")
-        )
-
-    def user_document_to_class(self, document: dict) -> User:
-        return User(
-            password=document.get("password"),
-            email=document.get("email"),
-            profile=self.profile_document_to_class(document.get("profile")),
-            city=document.get("city")
-        )
+class UsersService:
+    def __init__(self, user_repository: UserRepository):
+        self.user_repository = user_repository
 
     def hash_password(self, password: str) -> str:
         salt = bcrypt.gensalt()
@@ -28,22 +14,22 @@ class UserServices:
         return hashed.decode('utf-8')
 
     async def get_users(self):
-        return await self.user_repository.get()
+        return await self.user_repository.get_all()
 
     async def create_user(self, document):
-        user = self.user_document_to_class(document)
+        user = User.from_request(document)
         user.password = self.hash_password(user.password)
         await self.user_repository.create(user)
-        return starlette.status.HTTP_201_CREATED
+        return user
 
-    async def update_user(self, id, document):
-        user = await self.user_repository.find_one(id)
+    async def update_user(self, user_id, document):
+        user = User.from_request(await self.user_repository.find_one(user_id))
         if not user:
             return starlette.status.HTTP_404_NOT_FOUND
-        document = self.user_document_to_class(document)
-        document.password = self.user_document_to_class(user).password
-        return await self.user_repository.update(id, document)
+        result = await self.user_repository.update(user_id, user.update_attributes(document))
 
-    async def delete_user(self, id):
-        await self.user_repository.delete(id)
-        return
+        if result.modified_count >= 1:
+            return User.from_request(await self.user_repository.find_one(user_id))
+
+    async def delete_user(self, user_id):
+        await self.user_repository.delete(user_id)
