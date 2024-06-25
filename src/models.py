@@ -1,4 +1,5 @@
 from typing import Optional, Dict
+import bcrypt
 
 
 class Profile:
@@ -14,6 +15,11 @@ class Profile:
             last_name=document.get("last_name"),
             address=document.get("address")
         )
+
+    def update_attributes(self, updates):
+        for key, value in updates.items():
+            if hasattr(self, key) and value is not None:
+                setattr(self, key, value)
 
 
 class User:
@@ -34,5 +40,15 @@ class User:
             city=document.get("city")
         )
 
+    def hash_password(self):
+        salt = bcrypt.gensalt()
+        self.password = bcrypt.hashpw(self.password.encode('utf-8'), salt)
+
     def update_attributes(self, update_data: Dict[str, Optional[str]]):
-        return self
+        for key, value in update_data.items():
+            if hasattr(self, key):
+                attr = getattr(self, key)
+                if isinstance(attr, (Profile, User)) and isinstance(value, dict):
+                    attr.update_attributes(value)
+                elif value is not None:
+                    setattr(self, key, value)

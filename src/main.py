@@ -6,6 +6,7 @@ from dependencies import provide_user_service
 
 app = FastAPI()
 
+
 @app.get("/health_check")
 def health_check():
     return {"ping": "pong"}
@@ -40,6 +41,7 @@ async def update(
 async def delete_user(user_id: str,
                       user_service: UsersService = Depends(provide_user_service)):
     return await user_service.delete_user(user_id)
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="localhost", port=8000)
