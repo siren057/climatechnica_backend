@@ -3,41 +3,37 @@ from models import *
 
 class ProfileMongoTranslator:
 
-    @classmethod
-    def from_document(cls, document: dict) -> Profile:
-        return Profile(
-            first_name=document.get("first_name"),
-            last_name=document.get("last_name"),
-            address=document.get("address")
-        )
-
-    def to_document(self: Profile) -> dict:
+    def to_document(self, model: Profile) -> dict:
         return {
-            "first_name": self.first_name,
-            "last_name": self.last_name,
-            "address": self.address
+            "first_name": model.first_name,
+            "last_name": model.last_name,
+            "address": model.address
         }
+
+    def from_document(document: dict) -> Profile:
+        return Profile(**document)
 
 
 class UserMongoTranslator:
-    @classmethod
-    def from_document(cls, document: dict) -> User:
+    def __init__(self):
+        self.profile_translator = ProfileMongoTranslator()
+
+    def to_document(self, model) -> dict:
+        return {
+            "_id": model._id,
+            "email": model.email,
+            "password": model.password,
+            "profile": self.profile_translator.to_document(model.profile),
+            "city": model.city
+        }
+
+    def from_document(self, document: dict) -> User:
         return User(
-            id= str(document.get('_id')),
+            _id=str(document.get('_id')),
             email=document.get('email'),
             password=document.get("password"),
             profile=ProfileMongoTranslator.from_document(document.get("profile")),
             city=document.get("city")
         )
 
-    def to_document(self: User) -> dict:
-        document = {
 
-            "email": self.email,
-            "password": self.password,
-            "profile": ProfileMongoTranslator.to_document(self.profile),
-            "city": self.city
-        }
-        if self.id:
-            document["id"] = self.id
-        return document

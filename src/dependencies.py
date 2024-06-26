@@ -1,11 +1,10 @@
 from user_repository import UserRepository
 from user_services import UsersService
+from user_translator import UserMongoTranslator
 
+user_mongo_translator = UserMongoTranslator()
 
-def provide_user_repository() -> UserRepository:
-    return UserRepository(db_url="mongodb://localhost:27017", db_name="test_database")
+users_repository = UserRepository(db_url="mongodb://localhost:27017", db_name="test_database", translator=user_mongo_translator)
 
+users_service = UsersService(users_repository)
 
-def provide_user_service() -> UsersService:
-    user_repository = provide_user_repository()
-    return UsersService(user_repository)
