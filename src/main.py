@@ -1,8 +1,7 @@
 from fastapi import FastAPI, Depends
-from user_services import UsersService
-from typing import Dict
 import uvicorn
 from dependencies import users_service
+
 
 app = FastAPI()
 
@@ -13,7 +12,7 @@ def health_check():
 
 
 @app.get("/users")
-async def users():
+async def get():
     gel_all_response = await users_service.get_users()
     return gel_all_response
 
