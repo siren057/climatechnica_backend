@@ -19,7 +19,7 @@ class ProfileMongoTranslator:
 
 
 class UserMongoTranslator:
-    def __init__(self, profile_translator: ProfileMongoTranslator()):
+    def __init__(self, profile_translator: ProfileMongoTranslator):
         self.profile_translator = profile_translator
 
     def to_document(self, model) -> dict:
@@ -31,8 +31,8 @@ class UserMongoTranslator:
             "city": model.city
         }
 
-    def from_document(self, document: dict) -> User:
-        return UserFromDB(
+    def from_document(self, document) -> User:
+        return User(
             user_id=str(document.get("_id")),
             email=document.get('email'),
             password=document.get("hash_password"),

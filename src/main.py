@@ -11,10 +11,15 @@ def health_check():
     return {"ping": "pong"}
 
 
+@app.get("/users/{user_id}")
+async def get_by_id(user_id):
+    get_by_id_response = await users_service.get_by_id(user_id)
+    return get_by_id_response
+
 @app.get("/users")
-async def get():
-    gel_all_response = await users_service.get_users()
-    return gel_all_response
+async def get_all():
+    get_all_response = await users_service.get_users()
+    return get_all_response
 
 
 @app.post("/users")
