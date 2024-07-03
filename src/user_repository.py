@@ -11,7 +11,7 @@ class UserRepository:
     async def get_all(self):
         return [self.translator.from_document(document) for document in await self.collection.find().to_list(None)]
 
-    async def find_by_id(self, user_id):
+    async def get_by_id(self, user_id):
         document = await self.collection.find_one({"_id": ObjectId(user_id)})
         return self.translator.from_document(document) if document else None
 
@@ -25,4 +25,4 @@ class UserRepository:
         return user if result else None
 
     async def delete(self, user_id: str):
-        await self.collection.delete_one({"_id": user_id})
+        await self.collection.delete_one({"_id": ObjectId(user_id)})

@@ -9,35 +9,43 @@ class UsersService:
         self.repository = user_repository
 
     async def get_by_id(self, user_id):
-        return await self.repository.find_by_id(user_id)
+
+        return await self.repository.get_by_id(user_id)
 
     async def get_users(self):
+
         return await self.repository.get_all()
 
     async def create_user(self, document):
-        user = User.from_request(document)
 
         salt = bcrypt.gensalt()
-        hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), salt)
-        user.password = hashed_password
+        hashed_password = bcrypt.hashpw(document["password"].encode('utf-8'), salt)
+
+        user = User.from_request(document, hashed_password)
 
         result = await self.repository.create(user)
 
         return result
 
     async def update_user(self, user_id, document):
-        user, user.user_id = User.from_request(document), user_id
 
-        db_user = await self.repository.find_by_id(user_id)
+        db_user = await self.repository.get_by_id(user_id)
 
-        if not db_user:
+        if db_user is None:
             return None
 
-        user.update_attributes(db_user, ["password", "city"])
+        if document.get("password_hash") is not None:
+            salt = bcrypt.gensalt()
+            hashed_password = bcrypt.hashpw(document["password"].encode('utf-8'), salt)
+        else:
+            hashed_password = db_user.password_hash
 
-        await self.repository.update(user_id, user)
+        db_user.update_attributes(document, hashed_password)
 
-        return user
+        await self.repository.update(user_id, db_user)
+
+        return db_user
 
     async def delete_user(self, user_id):
+
         await self.repository.delete(user_id)

@@ -24,9 +24,8 @@ class UserMongoTranslator:
 
     def to_document(self, model) -> dict:
         return {
-
             "email": model.email,
-            "hash_password": model.password,
+            "password_hash": model.password_hash,
             "profile": self.profile_translator.to_document(model.profile),
             "city": model.city
         }
@@ -35,7 +34,7 @@ class UserMongoTranslator:
         return User(
             user_id=str(document.get("_id")),
             email=document.get('email'),
-            password=document.get("hash_password"),
+            password_hash=document.get("password_hash"),
             profile=self.profile_translator.from_document(document.get("profile")),
             city=document.get("city")
         )
