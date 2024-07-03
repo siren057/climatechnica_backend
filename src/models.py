@@ -19,22 +19,24 @@ class Profile:
 
 class User:
     def __init__(self, user_id, email, password_hash, profile, city):
-        self.user_id = user_id
+        self.id = user_id
         self.email = email
         self.password_hash = password_hash
         self.profile = profile
         self.city = city
 
     @staticmethod
-    def from_request(document: dict, hashed_password):
+    def from_request(document: dict):
         return User(
             user_id=document.get("_id"),
             email=document.get('email'),
-            password_hash=hashed_password,
+            password_hash=None,
             profile=Profile.from_request(document.get("profile")),
             city=document.get("city")
         )
 
-    def update_attributes(self, document: dict, password_hash):
+    def update_attributes(self, document: dict):
         self.profile.update_attributes(document.get("profile"))
-        self.password_hash = password_hash
+
+
+

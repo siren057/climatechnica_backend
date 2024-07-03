@@ -1,5 +1,3 @@
-
-from bson import ObjectId
 from user_translator import *
 
 
@@ -16,13 +14,12 @@ class UserRepository:
         return self.translator.from_document(document) if document else None
 
     async def update(self, user_id, user: User):
-        return await self.collection.update_one({"_id": ObjectId(user_id)},
-                                                {'$set': self.translator.to_document(user)})
+        await self.collection.update_one({"_id": ObjectId(user_id)},
+                                         {'$set': self.translator.to_document(user)})
 
     async def create(self, user: User):
         result = await self.collection.insert_one(self.translator.to_document(user))
-        user.user_id = str(result.inserted_id)
-        return user if result else None
+        return str(result.inserted_id)
 
     async def delete(self, user_id: str):
         await self.collection.delete_one({"_id": ObjectId(user_id)})

@@ -1,4 +1,5 @@
 from models import *
+from bson import ObjectId
 
 
 class ProfileMongoTranslator:
@@ -23,12 +24,15 @@ class UserMongoTranslator:
         self.profile_translator = profile_translator
 
     def to_document(self, model) -> dict:
-        return {
+        result = {
             "email": model.email,
             "password_hash": model.password_hash,
             "profile": self.profile_translator.to_document(model.profile),
             "city": model.city
         }
+        if model.id is not None:
+            result['_id'] = ObjectId(model.id)
+        return result
 
     def from_document(self, document) -> User:
         return User(
@@ -38,5 +42,3 @@ class UserMongoTranslator:
             profile=self.profile_translator.from_document(document.get("profile")),
             city=document.get("city")
         )
-
-
